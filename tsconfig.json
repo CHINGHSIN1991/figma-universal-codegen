@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    // 編譯輸出目標為 ES2022，支援現代語法
+    // https://www.typescriptlang.org/tsconfig#target
+    "target": "ES2022",
+
+    // 使用 NodeNext 模組系統（ESM），適用於 Node.js 22+
+    // https://www.typescriptlang.org/tsconfig#module
+    // https://www.typescriptlang.org/docs/handbook/esm-node.html
+    "module": "NodeNext",
+
+    // 路徑解析遵循 Node.js 22+ ESM 規則（import 需加副檔名 .js）
+    // https://www.typescriptlang.org/tsconfig#moduleResolution
+    "moduleResolution": "NodeNext",
+
+    // 開啟所有嚴格型別檢查
+    // https://www.typescriptlang.org/tsconfig#strict
+    "strict": true,
+
+    // 允許 import fs from 'fs' 語法 import CommonJS 模組
+    // https://www.typescriptlang.org/tsconfig#esModuleInterop
+    "esModuleInterop": true,
+
+    // 跳過 node_modules 的型別檢查，加快編譯速度
+    // https://www.typescriptlang.org/tsconfig#skipLibCheck
+    "skipLibCheck": true,
+
+    // 路徑別名解析的起點為根目錄（配合 paths 使用）
+    // https://www.typescriptlang.org/tsconfig#baseUrl
+    "baseUrl": ".",
+
+    // 跨套件 import 的路徑映射，讓 VSCode 自動補全與 Go to Definition 正常運作
+    // https://www.typescriptlang.org/tsconfig#paths
+    "paths": {
+      "@codegen/shared": ["packages/shared/src/index.ts"],
+      "@codegen/parser": ["packages/parser/src/index.ts"]
+    }
+  }
+}
