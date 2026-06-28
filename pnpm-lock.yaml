@@ -18,8 +18,17 @@ importers:
         specifier: ^5.7.0
         version: 5.9.3
 
+  packages/core:
+    dependencies:
+      '@codegen/parser':
+        specifier: workspace:*
+        version: link:../parser
+
   packages/parser:
     dependencies:
+      '@codegen/shared':
+        specifier: workspace:*
+        version: link:../shared
       axios:
         specifier: ^1.18.1
         version: 1.18.1
