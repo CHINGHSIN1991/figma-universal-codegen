@@ -70,3 +70,5 @@ export const FigmaNodesResponseSchema = z.object({
 });
 
 export type FigmaNodesResponse = z.infer<typeof FigmaNodesResponseSchema>;
+
+export { BaseGenerator, type GenerateOptions } from './base-generator.js';
