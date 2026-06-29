@@ -1,6 +1,7 @@
 import { test, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { fetchFigmaNodes } from './figma-api.js';
+import { parseFigmaNode } from './index.js';
 
 // 保留原始 fetch，每個測試結束後還原，避免互相污染。
 const originalFetch = globalThis.fetch;
@@ -58,4 +59,32 @@ test('回傳結構不符預期（Zod 型別防線）時會丟錯', async () => {
     () => fetchFigmaNodes('FILE', '1:23', 'TOKEN'),
     /結構不符預期/,
   );
+});
+
+test('parseFigmaNode：fetch → transform 串接後輸出清洗過的 UINode', async () => {
+  mockFetch(
+    {
+      nodes: {
+        '1:23': {
+          document: {
+            id: '1:23',
+            name: 'Card',
+            type: 'FRAME',
+            layoutMode: 'VERTICAL',
+            itemSpacing: 8,
+            children: [{ id: '1:24', name: 'Title', type: 'TEXT', characters: 'Hi' }],
+          },
+        },
+      },
+    },
+    { status: 200 },
+  );
+
+  const ui = await parseFigmaNode('FILE', '1:23', 'TOKEN');
+
+  assert.equal(ui.type, 'container');
+  assert.equal(ui.styles.flexDirection, 'column');
+  assert.equal(ui.styles.gap, 8);
+  assert.equal(ui.children[0].type, 'text');
+  assert.equal(ui.children[0].textContents, 'Hi');
 });
