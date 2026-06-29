@@ -3,7 +3,6 @@
   "version": "0.0.0",
   "main": "./src/index.ts",
   "dependencies": {
-    "@codegen/shared": "workspace:*",
-    "axios": "^1.18.1"
+    "@codegen/shared": "workspace:*"
   }
 }
