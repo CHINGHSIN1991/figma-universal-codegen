@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "tsx --test \"packages/**/src/**/*.test.ts\"",
     "dev": "tsx packages/core/src/index.ts"
   },
   "keywords": [],
