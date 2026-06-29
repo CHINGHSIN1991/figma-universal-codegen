@@ -1,0 +1,14 @@
+{
+  "mappings": {
+    "PrimaryButton": {
+      "targetComponent": "BaseButton",
+      "vue3": { "importPath": "@/components/base/BaseButton.vue" },
+      "react": { "importPath": "@/components/ui/button" }
+    },
+    "InputField": {
+      "targetComponent": "CustomInput",
+      "vue3": { "importPath": "@/components/base/CustomInput.vue" },
+      "react": { "importPath": "@/components/ui/input" }
+    }
+  }
+}
