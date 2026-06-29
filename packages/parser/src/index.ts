@@ -2,6 +2,7 @@ import { UINode, UIElementType, UIStyleToken, FigmaNode } from '@codegen/shared'
 import { fetchFigmaNodes } from './figma-api.js';
 
 export { fetchFigmaNodes };
+export * from './style-strategy.js';
 
 /**
  * Parser 的公開進入點：抓取指定 Figma 節點並清洗成 UINode。

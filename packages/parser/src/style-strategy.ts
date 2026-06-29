@@ -33,3 +33,29 @@ export class TailwindStrategy implements StyleStrategy {
     return classes.join(' ');
   }
 }
+
+export class CssStrategy implements StyleStrategy {
+  parse(tokens: UIStyleToken): string {
+    const styles: string[] = [];
+
+    if (tokens.flexDirection) {
+      styles.push('display: flex;');
+      styles.push(`flex-direction: ${tokens.flexDirection};`);
+    }
+
+    if (tokens.gap !== undefined) {
+      styles.push(`gap: ${tokens.gap}px;`);
+    }
+
+    if (tokens.padding) {
+      const { top, right, bottom, left } = tokens.padding;
+      if (top === right && right === bottom && bottom === left) {
+        styles.push(`padding: ${top}px;`);
+      } else {
+        styles.push(`padding: ${top}px ${right}px ${bottom}px ${left}px;`);
+      }
+    }
+
+    return styles.join(' ');
+  }
+}

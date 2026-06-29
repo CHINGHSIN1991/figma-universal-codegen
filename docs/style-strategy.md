@@ -31,6 +31,13 @@ export interface StyleStrategy {
 - 將 `gap` 像素數值轉換為 Tailwind 級距（級距為 `gap / 4`）。
 - 處理內邊距 `padding`。若四邊對齊，輸出單一類名（如 `p-4`）；若不對稱，則輸出細分方向類名（如 `pt-2 pr-4 pb-2 pl-4`）。
 
+## 原生 CSS / CSS Modules 轉譯策略 (`CssStrategy`)
+
+我們也實作了 `CssStrategy` 用以處理需要標準 CSS 屬性聲明的專案：
+- 將 `flexDirection` 排版對應輸出為 `display: flex; flex-direction: <row|column>;`。
+- 將 `gap` 像素數值轉換為標準 CSS `gap: <gap>px;`。
+- 處理內邊距 `padding`。若四邊對齊，輸出 `padding: <padding>px;`；若不對稱，則輸出 shorthand 寫法（如 `padding: 4px 8px 12px 16px;`）。
+
 ## 測試與驗證
 
 我們使用 Node.js 內建的 `node:test` 對轉譯策略進行了完整的測試覆蓋，測試檔案為 [packages/parser/src/style-strategy.test.ts](../packages/parser/src/style-strategy.test.ts)。
