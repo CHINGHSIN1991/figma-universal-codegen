@@ -18,6 +18,7 @@
 
 - **[開發環境設定](./development-setup.md)** — Node / pnpm 版本需求、如何用 fnm + corepack 把版本釘住、版本飄移的排錯。
 - **[Figma Fetcher 模組](./figma-fetcher.md)** — `fetchFigmaNodes` 的用法、`.env` 設定、測試方式、429 限流與注意事項。
+- **[Style Strategy 轉譯策略](./style-strategy.md)** — 轉譯策略（Strategy Pattern）的設計理念與 Tailwind 轉譯策略實作。
 
 ## 快速開始
 
