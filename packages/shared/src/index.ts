@@ -4,7 +4,7 @@ import { z } from 'zod';
 // Figma 單一節點的 JSON 常達數千行，充滿 miterLimit、scrollBehavior 等渲染雜訊；
 // 這裡定義我們自己標準化、清洗後的結構，作為各 codegen 後端的共同輸入。
 
-export type UIElementType = 'page' | 'container' | 'button' | 'text' | 'input' | 'image';
+export type UIElementType = 'page' | 'container' | 'button' | 'text' | 'input' | 'image' | 'component';
 
 export interface UIStyleToken {
   // 版面（Auto Layout）
@@ -29,11 +29,14 @@ export interface UIStyleToken {
 
 export interface UINode {
   id: string;
-  name: string;          // Figma 上的圖層名稱（例如 "SubmitButton"）
-  type: UIElementType;   // 我們標準化後的型別
-  styles: UIStyleToken;  // 清洗後的樣式
-  textContents?: string; // 如果是文字節點，記錄其純文字
-  children: UINode[];    // 遞迴子節點
+  name: string;                 // Figma 上的圖層名稱（例如 "SubmitButton"）
+  type: UIElementType;          // 我們標準化後的型別
+  styles: UIStyleToken;         // 清洗後的樣式
+  textContents?: string;        // 如果是文字節點，記錄其純文字
+  children: UINode[];           // 遞迴子節點
+  // 當 type === 'component' 時，以下欄位由 Component Resolver 填入
+  targetComponent?: string;     // 映射後的元件名稱（例如 "BaseButton"）
+  importPath?: string | null;   // 元件的 import 路徑（例如 "@/components/ui/button"）
 }
 
 // ─── Figma 原始回傳的型別防線（Zod）─────────────────────────────────

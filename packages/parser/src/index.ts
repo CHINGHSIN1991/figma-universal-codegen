@@ -1,5 +1,6 @@
 import { UINode, UIElementType, UIStyleToken, FigmaNode } from '@codegen/shared';
 import { fetchFigmaNodes } from './figma-api.js';
+import { resolveComponentTag, MappingConfig } from './component-resolver.js';
 
 export { fetchFigmaNodes };
 export * from './style-strategy.js';
@@ -20,28 +21,42 @@ export async function parseFigmaNode(
 /**
  * 遞迴解析器核心：把 Figma 的 raw document tree 過濾／清洗成我們的通用 UINode。
  * 只取出我們需要的欄位，丟掉 miterLimit、scrollBehavior 等渲染雜訊。
+ *
+ * @param figmaNode - Figma 原始節點（已通過 Zod 驗證）
+ * @param config    - mapping.config.json 的設定物件；不傳則跳過元件映射
+ * @param framework - 目標框架（例如 "vue3" | "react"）；有 config 時必填
  */
-export function transformToUINode(figmaNode: FigmaNode): UINode {
-  // 1. 基本型別對應
+export function transformToUINode(
+  figmaNode: FigmaNode,
+  config?: MappingConfig,
+  framework?: string,
+): UINode {
+  // 1. 基本型別對應（優先使用 mapping config，其次退回 Figma type 判斷）
   let type: UIElementType = 'container';
   if (figmaNode.type === 'TEXT') type = 'text';
-  if (figmaNode.name.includes('Button')) type = 'button'; // 簡易的元件名稱規則映射
-
-  // 2. 清洗樣式
-  const styles = extractStyles(figmaNode);
-
-  // 3. 遞迴處理子節點
-  const children = (figmaNode.children ?? []).map(transformToUINode);
 
   const node: UINode = {
     id: figmaNode.id,
     name: figmaNode.name,
     type,
-    styles,
-    children,
+    styles: extractStyles(figmaNode),
+    // 遞迴處理子節點，將 config 與 framework 一路傳遞
+    children: (figmaNode.children ?? []).map((child) =>
+      transformToUINode(child, config, framework),
+    ),
   };
 
-  // 只有文字節點才帶純文字內容
+  // 2. 元件映射（有 config 才執行，取代舊的寫死 name.includes('Button') 邏輯）
+  if (config && framework) {
+    const resolved = resolveComponentTag(figmaNode.name, framework, config);
+    if (resolved.isCustomComponent) {
+      node.type = 'component';
+      node.targetComponent = resolved.tag;
+      node.importPath = resolved.importPath;
+    }
+  }
+
+  // 3. 只有文字節點才帶純文字內容
   const characters = (figmaNode as { characters?: unknown }).characters;
   if (typeof characters === 'string') node.textContents = characters;
 
