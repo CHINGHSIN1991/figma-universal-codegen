@@ -15,7 +15,7 @@ function mockFetch(body: unknown, init?: ResponseInit) {
 }
 
 test('正常回傳時回傳 node.document', async () => {
-  mockFetch({ nodes: { '1:23': { document: { name: 'Card', type: 'FRAME' } } } }, { status: 200 });
+  mockFetch({ nodes: { '1:23': { document: { id: '1:23', name: 'Card', type: 'FRAME' } } } }, { status: 200 });
 
   const doc = await fetchFigmaNodes('FILE', '1:23', 'TOKEN');
 
@@ -25,7 +25,7 @@ test('正常回傳時回傳 node.document', async () => {
 
 test('node id 用 "-" 時，會 fallback 到 ":" 格式查找', async () => {
   // 呼叫端傳網址格式的 "402-485"，但 API 回傳的 key 是 "402:485"。
-  mockFetch({ nodes: { '402:485': { document: { name: 'Desktop' } } } }, { status: 200 });
+  mockFetch({ nodes: { '402:485': { document: { id: '402:485', name: 'Desktop', type: 'FRAME' } } } }, { status: 200 });
 
   const doc = await fetchFigmaNodes('FILE', '402-485', 'TOKEN');
 
@@ -47,5 +47,15 @@ test('回傳中找不到節點時會丟錯', async () => {
   await assert.rejects(
     () => fetchFigmaNodes('FILE', '9:99', 'TOKEN'),
     /找不到節點/,
+  );
+});
+
+test('回傳結構不符預期（Zod 型別防線）時會丟錯', async () => {
+  // 缺少 nodes 外層，且 document 少了必要欄位 → 應被 Zod 擋下。
+  mockFetch({ unexpected: true }, { status: 200 });
+
+  await assert.rejects(
+    () => fetchFigmaNodes('FILE', '1:23', 'TOKEN'),
+    /結構不符預期/,
   );
 });
