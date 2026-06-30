@@ -28,6 +28,15 @@ importers:
         specifier: workspace:*
         version: link:../parser
 
+  packages/generators:
+    dependencies:
+      '@codegen/parser':
+        specifier: workspace:*
+        version: link:../parser
+      '@codegen/shared':
+        specifier: workspace:*
+        version: link:../shared
+
   packages/parser:
     dependencies:
       '@codegen/shared':

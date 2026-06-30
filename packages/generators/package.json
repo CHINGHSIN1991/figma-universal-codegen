@@ -1,0 +1,9 @@
+{
+  "name": "@codegen/generators",
+  "version": "0.0.0",
+  "main": "./src/index.ts",
+  "dependencies": {
+    "@codegen/parser": "workspace:*",
+    "@codegen/shared": "workspace:*"
+  }
+}

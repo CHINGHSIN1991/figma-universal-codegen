@@ -33,7 +33,8 @@
     // https://www.typescriptlang.org/tsconfig#paths
     "paths": {
       "@codegen/shared": ["packages/shared/src/index.ts"],
-      "@codegen/parser": ["packages/parser/src/index.ts"]
+      "@codegen/parser": ["packages/parser/src/index.ts"],
+      "@codegen/generators": ["packages/generators/src/index.ts"]
     }
   }
 }

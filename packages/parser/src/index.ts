@@ -3,6 +3,7 @@ import { fetchFigmaNodes } from './figma-api.js';
 import { resolveComponentTag, MappingConfig } from './component-resolver.js';
 
 export { fetchFigmaNodes };
+export { resolveComponentTag, type MappingConfig, type ResolvedComponent } from './component-resolver.js';
 export * from './style-strategy.js';
 
 /**

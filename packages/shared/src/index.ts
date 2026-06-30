@@ -4,7 +4,9 @@ import { z } from 'zod';
 // Figma 單一節點的 JSON 常達數千行，充滿 miterLimit、scrollBehavior 等渲染雜訊；
 // 這裡定義我們自己標準化、清洗後的結構，作為各 codegen 後端的共同輸入。
 
-export type UIElementType = 'page' | 'container' | 'button' | 'text' | 'input' | 'image' | 'component';
+// 語意型別。注意：button/input/image 等細分型別已不再由 transformToUINode 推斷
+// （改以 mapping config 將命中的圖層標記為 'component'），故不列入此聯集。
+export type UIElementType = 'page' | 'container' | 'text' | 'component';
 
 export interface UIStyleToken {
   // 版面（Auto Layout）

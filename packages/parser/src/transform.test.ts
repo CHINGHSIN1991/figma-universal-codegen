@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import type { FigmaNode } from '@codegen/shared';
 import { transformToUINode } from './index.js';
+import type { MappingConfig } from './component-resolver.js';
 
 // 用 as unknown as FigmaNode 建立帶有 raw 欄位的假節點（含我們不需要的雜訊欄位）。
 function fakeNode(partial: Record<string, unknown>): FigmaNode {
@@ -64,9 +65,10 @@ test('TEXT 節點：type=text、帶 textContents、fill 視為文字色、字體
   assert.equal(ui.styles.textAlign, 'center');
 });
 
-test('名稱含 "Button" → type=button', () => {
+test('未傳 config 時，圖層名稱不影響型別：FRAME → container', () => {
+  // 名稱推斷（舊的 name.includes("Button")）已移除，型別分類改由 mapping config 負責。
   const ui = transformToUINode(fakeNode({ id: '3:3', name: 'SubmitButton', type: 'FRAME' }));
-  assert.equal(ui.type, 'button');
+  assert.equal(ui.type, 'container');
 });
 
 test('Resizing：FILL/HUG 對應語意，FIXED 取 absoluteBoundingBox 像素', () => {
@@ -101,7 +103,25 @@ test('遞迴處理子節點', () => {
   assert.equal(ui.children.length, 2);
   assert.equal(ui.children[0].type, 'text');
   assert.equal(ui.children[0].textContents, 'Hi');
-  assert.equal(ui.children[1].type, 'button');
+  // 無 config：FRAME 子節點維持 container（名稱推斷已移除）
+  assert.equal(ui.children[1].type, 'container');
+});
+
+test('傳入 config 時，命中映射的圖層 → type=component 並帶入 targetComponent / importPath', () => {
+  const config: MappingConfig = {
+    mappings: {
+      SubmitButton: {
+        targetComponent: 'BaseButton',
+        vue3: { importPath: '@/components/ui/button' },
+      },
+    },
+  };
+
+  const ui = transformToUINode(fakeNode({ id: '7:7', name: 'SubmitButton', type: 'FRAME' }), config, 'vue3');
+
+  assert.equal(ui.type, 'component');
+  assert.equal(ui.targetComponent, 'BaseButton');
+  assert.equal(ui.importPath, '@/components/ui/button');
 });
 
 test('半透明 fill → 輸出 rgba()', () => {
