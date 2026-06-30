@@ -1,4 +1,5 @@
 import { cac } from 'cac';
+import inquirer from 'inquirer';
 import { StyleMode } from './orchestrator.js';
 import { runGenerate } from './pipeline.js';
 
@@ -19,13 +20,27 @@ cli
   .option('--style <style>', '樣式引擎 (tailwind, css)', { default: 'tailwind' })
   .option('--out <dir>', '輸出目錄（省略則印到終端機）')
   .action(async (options) => {
-    // 缺少的參數將於步驟 3 以互動式問答引導補齊。
+    let { file, node, framework, style, out } = options;
+
+    // 若缺少必要參數，以互動式問答引導補齊
+    const questions: inquirer.DistinctQuestion[] = [];
+    if (!file) questions.push({ type: 'input', name: 'file', message: '請輸入 Figma File Key:' });
+    if (!node) questions.push({ type: 'input', name: 'node', message: '請輸入 Figma Node ID:' });
+
+    if (questions.length > 0) {
+      const answers = await inquirer.prompt(questions);
+      file = file ?? answers.file;
+      node = node ?? answers.node;
+    }
+
+    console.log(`\n🚀 啟動任務：File[${file}] Node[${node}] -> 轉譯為 [${framework} + ${style}]...`);
+
     await runGenerate({
-      file: options.file,
-      node: options.node,
-      framework: options.framework,
-      style: options.style as StyleMode,
-      out: options.out,
+      file,
+      node,
+      framework,
+      style: style as StyleMode,
+      out,
     });
   });
 
