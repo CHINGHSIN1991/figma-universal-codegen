@@ -3,6 +3,7 @@ import { resolve, dirname } from 'path';
 import { parseFigmaNode, MappingConfig } from '@codegen/parser';
 import { createGenerator } from '@codegen/generators';
 import { StyleMode } from './orchestrator.js';
+import { formatCode } from './formatter.js';
 
 /** 一次產生作業所需的參數（由 CLI 旗標或環境變數提供）。 */
 export interface GenerateRunOptions {
@@ -60,15 +61,18 @@ export async function runGenerate(opts: GenerateRunOptions): Promise<void> {
   });
   const relPath = `${generator.getOutputDir(ui)}/${generator.getFileName(ui)}`;
 
+  // 4. Prettier 格式化（讓拼接出的原始字串變成縮排整齊的可讀程式碼）
+  const formattedCode = await formatCode(code, generator.getFileName(ui));
+
   if (opts.out) {
     // 指定 --out 時實際寫檔到 <out>/<outputDir>/<fileName>
     const target = resolve(process.cwd(), opts.out, relPath);
     mkdirSync(dirname(target), { recursive: true });
-    writeFileSync(target, code, 'utf-8');
-    console.log(`\n[Core] 目標框架：${opts.framework}（style: ${opts.style}）→ 已寫入 ${target}`);
+    writeFileSync(target, formattedCode, 'utf-8');
+    console.log(`\n🎉 目標框架：${opts.framework}（style: ${opts.style}）→ 已寫入 ${target}`);
   } else {
     // 未指定 --out 時印到 stdout
     console.log(`\n[Core] 目標框架：${opts.framework}（style: ${opts.style}）→ ${relPath}`);
-    console.log(code);
+    console.log(formattedCode);
   }
 }
