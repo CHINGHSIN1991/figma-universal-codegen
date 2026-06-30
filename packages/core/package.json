@@ -4,6 +4,12 @@
   "main": "./src/index.ts",
   "dependencies": {
     "@codegen/generators": "workspace:*",
-    "@codegen/parser": "workspace:*"
+    "@codegen/parser": "workspace:*",
+    "cac": "^7.0.0",
+    "inquirer": "^9.3.8"
+  },
+  "devDependencies": {
+    "eslint": "^10.6.0",
+    "prettier": "^3.9.4"
   }
 }
