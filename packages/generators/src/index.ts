@@ -2,4 +2,5 @@
 // 未來新增框架（例如 React、Svelte）時，於此處 re-export 對應的 Generator 類別。
 export { Vue3Generator } from './vue3/index.js';
 export { NuxtGenerator } from './nuxt/index.js';
+export { ReactGenerator } from './react/index.js';
 
