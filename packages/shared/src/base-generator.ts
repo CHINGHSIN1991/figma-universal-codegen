@@ -36,4 +36,13 @@ export abstract class BaseGenerator {
   getOutputDir(ast: UINode): string {
     return 'components';
   }
+
+  /**
+   * 回傳該元件的輸出檔名（含副檔名）。
+   * 預設為「圖層名稱 + 副檔名」；框架可覆寫以套用專屬命名規則
+   * （例如 Next.js App Router 將頁面強制命名為 page.tsx）。
+   */
+  getFileName(ast: UINode): string {
+    return `${ast.name}${this.getFileExtension()}`;
+  }
 }

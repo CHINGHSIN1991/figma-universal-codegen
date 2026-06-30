@@ -120,7 +120,7 @@ export class ReactGenerator extends BaseGenerator {
 // 將 ast.name 正規化為合法的 React 元件識別字（PascalCase）。
 // 例："Home Page" → "HomePage"、"submit-button" → "SubmitButton"；
 // 空字串或非字母開頭則退回 "GeneratedComponent"。
-function toComponentName(name: string): string {
+export function toComponentName(name: string): string {
   const pascal = name
     .replace(/[^a-zA-Z0-9]+/g, ' ')
     .trim()

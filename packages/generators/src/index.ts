@@ -3,4 +3,5 @@
 export { Vue3Generator } from './vue3/index.js';
 export { NuxtGenerator } from './nuxt/index.js';
 export { ReactGenerator } from './react/index.js';
+export { NextGenerator } from './next/index.js';
 

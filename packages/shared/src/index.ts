@@ -39,6 +39,8 @@ export interface UINode {
   // 當 type === 'component' 時，以下欄位由 Component Resolver 填入
   targetComponent?: string;     // 映射後的元件名稱（例如 "BaseButton"）
   importPath?: string | null;   // 元件的 import 路徑（例如 "@/components/ui/button"）
+  // 互動性標記：節點是否帶有點擊等客戶端互動（供 Next.js 等框架判斷是否需 'use client'）。
+  hasClickEvent?: boolean;
 }
 
 // ─── Figma 原始回傳的型別防線（Zod）─────────────────────────────────
