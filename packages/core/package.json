@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "main": "./src/index.ts",
   "dependencies": {
+    "@codegen/generators": "workspace:*",
     "@codegen/parser": "workspace:*"
   }
 }

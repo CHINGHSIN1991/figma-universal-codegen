@@ -24,6 +24,9 @@ importers:
 
   packages/core:
     dependencies:
+      '@codegen/generators':
+        specifier: workspace:*
+        version: link:../generators
       '@codegen/parser':
         specifier: workspace:*
         version: link:../parser

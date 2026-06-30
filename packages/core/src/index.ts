@@ -1,7 +1,8 @@
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import { parseFigmaNode, MappingConfig } from '@codegen/parser';
-import { orchestrate, StyleMode } from './orchestrator.js';
+import { createGenerator } from '@codegen/generators';
+import { StyleMode } from './orchestrator.js';
 
 // 載入 .env（Node 20.12+ 內建；已存在的環境變數優先、不覆蓋）。
 process.loadEnvFile();
@@ -28,11 +29,17 @@ async function main() {
   const ui = await parseFigmaNode(fileKey, nodeId, token);
   console.log(`[Core] 清洗完成：${ui.name}（${ui.type}），子節點 ${ui.children.length} 個`);
 
-  // 串接 StyleStrategy + ComponentResolver，遞迴編譯整棵 UINode 樹
-  const compiled = orchestrate(ui, { framework, styleMode, config });
+  // 一鍵分流：依 framework 取得對應產生器，直接產出可寫入檔案的程式碼字串。
+  const generator = createGenerator(framework);
+  const code = generator.generateComponent(ui, {
+    styleMode,
+    // MappingConfig 結構相容，僅補上對外的寬鬆型別。
+    mappingConfig: config as unknown as Record<string, unknown>,
+  });
+  const outputPath = `${generator.getOutputDir(ui)}/${generator.getFileName(ui)}`;
 
-  console.log('\n[Core] 編譯結果：');
-  console.log(JSON.stringify(compiled, null, 2));
+  console.log(`\n[Core] 目標框架：${framework}（style: ${styleMode}）→ ${outputPath}`);
+  console.log(code);
 }
 
 main().catch((err) => {
