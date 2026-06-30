@@ -24,7 +24,7 @@ export class NuxtGenerator extends Vue3Generator {
    * 覆寫自訂元件 import 判斷。
    * 若開啟 autoImport (預設)，則不寫入 import 語句。
    */
-  protected override shouldImportCustomComponent(tag: string, importPath: string): boolean {
+  protected override shouldImportCustomComponent(_tag: string, _importPath: string): boolean {
     return !this.autoImport;
   }
 

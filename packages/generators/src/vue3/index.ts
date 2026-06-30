@@ -34,7 +34,7 @@ export class Vue3Generator extends BaseGenerator {
   /**
    * 判斷是否需要為自訂元件寫入 import 語句。預設皆需要。
    */
-  protected shouldImportCustomComponent(tag: string, importPath: string): boolean {
+  protected shouldImportCustomComponent(_tag: string, _importPath: string): boolean {
     return true;
   }
 
