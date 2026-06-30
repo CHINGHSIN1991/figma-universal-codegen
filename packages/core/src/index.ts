@@ -1,5 +1,6 @@
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
+import { readFileSync, writeFileSync, mkdirSync } from 'fs';
+import { resolve, dirname } from 'path';
+import { parseArgs } from 'util';
 import { parseFigmaNode, MappingConfig } from '@codegen/parser';
 import { createGenerator } from '@codegen/generators';
 import { StyleMode } from './orchestrator.js';
@@ -7,11 +8,25 @@ import { StyleMode } from './orchestrator.js';
 // 載入 .env（Node 20.12+ 內建；已存在的環境變數優先、不覆蓋）。
 process.loadEnvFile();
 
+// CLI 旗標解析（對應 `pnpm codegen --framework react --style tailwind`）。
+// strict: false 讓未知旗標不致直接報錯。
+const { values: cli } = parseArgs({
+  args: process.argv.slice(2),
+  options: {
+    framework: { type: 'string', short: 'f' },
+    style: { type: 'string', short: 's' },
+    out: { type: 'string', short: 'o' }, // 指定則寫檔；否則印到 stdout
+  },
+  strict: false,
+});
+
 const fileKey = process.env.FIGMA_FILE_KEY;
 const nodeId = process.env.FIGMA_NODE_ID;
 const token = process.env.FIGMA_PERSONAL_ACCESS_TOKEN;
-const framework = process.env.CODEGEN_FRAMEWORK ?? 'vue3';
-const styleMode = (process.env.CODEGEN_STYLE ?? 'tailwind') as StyleMode;
+// 優先序：CLI 旗標 > 環境變數 > 預設值
+const framework = (cli.framework as string) ?? process.env.CODEGEN_FRAMEWORK ?? 'vue3';
+const styleMode = ((cli.style as string) ?? process.env.CODEGEN_STYLE ?? 'tailwind') as StyleMode;
+const outDir = (cli.out as string) ?? process.env.CODEGEN_OUT;
 
 // mapping.config.json 位於 monorepo 根目錄
 const config: MappingConfig = JSON.parse(
@@ -36,10 +51,19 @@ async function main() {
     // MappingConfig 結構相容，僅補上對外的寬鬆型別。
     mappingConfig: config as unknown as Record<string, unknown>,
   });
-  const outputPath = `${generator.getOutputDir(ui)}/${generator.getFileName(ui)}`;
+  const relPath = `${generator.getOutputDir(ui)}/${generator.getFileName(ui)}`;
 
-  console.log(`\n[Core] 目標框架：${framework}（style: ${styleMode}）→ ${outputPath}`);
-  console.log(code);
+  if (outDir) {
+    // 指定 --out 時實際寫檔到 <out>/<outputDir>/<fileName>
+    const target = resolve(process.cwd(), outDir, relPath);
+    mkdirSync(dirname(target), { recursive: true });
+    writeFileSync(target, code, 'utf-8');
+    console.log(`\n[Core] 目標框架：${framework}（style: ${styleMode}）→ 已寫入 ${target}`);
+  } else {
+    // 未指定 --out 時印到 stdout
+    console.log(`\n[Core] 目標框架：${framework}（style: ${styleMode}）→ ${relPath}`);
+    console.log(code);
+  }
 }
 
 main().catch((err) => {

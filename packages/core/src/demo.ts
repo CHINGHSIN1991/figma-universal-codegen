@@ -9,8 +9,19 @@
  *   CODEGEN_FRAMEWORK=react pnpm demo          # 只跑單一框架
  *   CODEGEN_STYLE=css pnpm demo                # 改用 inline / css 樣式
  */
+import { parseArgs } from 'util';
 import { GenerateOptions, UINode } from '@codegen/shared';
 import { createGenerator, SUPPORTED_FRAMEWORKS } from '@codegen/generators';
+
+// 與 codegen CLI 一致的旗標解析（--framework / --style，可縮寫 -f / -s）。
+const { values: cli } = parseArgs({
+  args: process.argv.slice(2),
+  options: {
+    framework: { type: 'string', short: 'f' },
+    style: { type: 'string', short: 's' },
+  },
+  strict: false,
+});
 
 // 模擬 Parser 產出的標準中介資料（UINode）。
 // 注意：樣式放在 `styles`（UIStyleToken，框架無關），而非 className 字串；
@@ -52,7 +63,10 @@ const mockAST: UINode = {
 };
 
 const options: GenerateOptions = {
-  styleMode: (process.env.CODEGEN_STYLE as GenerateOptions['styleMode']) ?? 'tailwind',
+  // 優先序：CLI 旗標 > 環境變數 > 預設值
+  styleMode: ((cli.style as string) ??
+    process.env.CODEGEN_STYLE ??
+    'tailwind') as GenerateOptions['styleMode'],
   // 每個框架各自一段 importPath（key 須對應各產生器的 frameworkName）。
   mappingConfig: {
     mappings: {
@@ -67,8 +81,8 @@ const options: GenerateOptions = {
   },
 };
 
-// 一鍵分流：可用 CODEGEN_FRAMEWORK 指定單一框架，否則全部跑一遍。
-const target = process.env.CODEGEN_FRAMEWORK;
+// 一鍵分流：用 --framework（或 CODEGEN_FRAMEWORK）指定單一框架，否則全部跑一遍。
+const target = (cli.framework as string) ?? process.env.CODEGEN_FRAMEWORK;
 const frameworks = target ? [target] : [...SUPPORTED_FRAMEWORKS];
 
 for (const framework of frameworks) {

@@ -31,6 +31,22 @@ pnpm test                # 跑所有單元測試（Node.js 內建 test runner）
 
 抓取真實 Figma 節點的設定與測試，見 [Figma Fetcher 模組](./figma-fetcher.md)。
 
+## CLI 用法
+
+`pnpm codegen`（等同 `pnpm dev`）會抓取 `.env` 指定的 Figma 節點、清洗成 `UINode`，再依框架分流產生程式碼：
+
+```bash
+pnpm codegen --framework react              # 指定框架（vue3 / nuxt / react / next）
+pnpm codegen --framework next --style css   # 同時指定樣式（tailwind / css）
+pnpm codegen --framework vue3 --out generated   # 實際寫檔到 generated/<dir>/<檔名>
+pnpm demo --framework react                 # 免 Figma 憑證，改用內建 mock AST
+```
+
+- 旗標可縮寫：`-f`（framework）、`-s`（style）、`-o`（out）。
+- **優先序：CLI 旗標 > 環境變數（`CODEGEN_*`）> 預設值**（框架 `vue3`、樣式 `tailwind`）。
+- 未給 `--out` 時印到終端機；給了才寫檔。
+- 若 pnpm 攔截了旗標，改用 `pnpm codegen -- --framework react`（`--` 後的參數一律轉交腳本）。
+
 ## 環境變數（`.env`）
 
 | 變數 | 必填 | 說明 |
