@@ -7,7 +7,7 @@
   "scripts": {
     "test": "tsx --test \"packages/**/src/**/*.test.ts\"",
     "dev": "tsx packages/core/src/index.ts",
-    "codegen": "tsx packages/core/src/cli.ts",
+    "codegen": "tsx packages/core/src/cli.ts generate",
     "demo": "tsx packages/core/src/demo.ts",
     "lint": "eslint packages/**/src/**/*.ts",
     "lint:fix": "eslint packages/**/src/**/*.ts --fix"
