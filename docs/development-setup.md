@@ -26,9 +26,14 @@ pnpm install
 
 ## 常用指令
 
-```powershell
+```bash
 pnpm dev                                              # 跑 core 進入點
-pnpm tsx packages/parser/src/figma-api.test-run.ts    # Figma 抓取 smoke test（需 .env，見 Figma Fetcher 文件）
+pnpm codegen generate --help                          # 看 CLI 所有參數
+pnpm codegen generate --framework react --out output  # 產生 React 元件並寫入 output/
+pnpm test                                             # 跑所有單元測試
+pnpm lint                                             # ESLint 掃描（偵測未使用變數、重複 import 等）
+pnpm lint:fix                                         # ESLint 自動修正
+pnpm tsx packages/parser/src/figma-api.test-run.ts    # Figma 抓取 smoke test（需 .env）
 pnpm tsc --noEmit                                     # 型別檢查
 ```
 

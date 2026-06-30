@@ -4,14 +4,15 @@
 
 ## Monorepo 結構
 
-使用 pnpm workspace（[pnpm-workspace.yaml](../pnpm-workspace.yaml)：`packages/*`），目前分為四個套件：
+使用 pnpm workspace（[pnpm-workspace.yaml](../pnpm-workspace.yaml)：`packages/*`），目前分為五個套件：
 
 | 套件 | 路徑 | 職責 | 相依 |
 |---|---|---|---|
 | `@codegen/shared` | [packages/shared](../packages/shared) | 共用型別（`UINode`、`UIStyleToken`、`BaseGenerator` 等），無對外相依 | — |
 | `@codegen/parser` | [packages/parser](../packages/parser) | 抓取並清洗 Figma 節點、Style Strategy、Component Resolver | `@codegen/shared` |
-| `@codegen/core` | [packages/core](../packages/core) | CLI 控制台（cac）、一鍵分流管線（`runGenerate`）、Orchestrator；串接 Parser／Generators | `@codegen/parser`、`@codegen/generators` |
+| `@codegen/core` | [packages/core](../packages/core) | CLI 控制台（cac）、一鍵分流管線（`runGenerate`）、Orchestrator、Prettier Formatter；串接 Parser／Generators | `@codegen/parser`、`@codegen/generators` |
 | `@codegen/generators` | [packages/generators](../packages/generators) | 各框架程式碼產生器（vue3 / nuxt / react / next），繼承 `BaseGenerator`，共用 parser 的 Style Engine 與 Component Resolver | `@codegen/parser`、`@codegen/shared` |
+| `@codegen/ai-layer` | [packages/ai-layer](../packages/ai-layer) | AI 輔助層，整合 Google Gemini（`@google/genai`）；負責 prompt 建構、LLM 呼叫、Zod schema 強制驗證回傳 JSON | `@codegen/shared` |
 
 ## 文件
 
