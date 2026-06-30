@@ -31,6 +31,13 @@ export class Vue3Generator extends BaseGenerator {
     return '.vue';
   }
 
+  /**
+   * 判斷是否需要為自訂元件寫入 import 語句。預設皆需要。
+   */
+  protected shouldImportCustomComponent(tag: string, importPath: string): boolean {
+    return true;
+  }
+
   generateComponent(ast: UINode, options: GenerateOptions): string {
     // 依 --style 參數選擇樣式策略（Strategy Pattern 的實際切換點）
     const strategy: StyleStrategy =
@@ -69,7 +76,9 @@ export class Vue3Generator extends BaseGenerator {
       const resolved = resolveTag(node);
 
       if (resolved.isCustomComponent && resolved.importPath) {
-        imports.set(resolved.tag, resolved.importPath);
+        if (this.shouldImportCustomComponent(resolved.tag, resolved.importPath)) {
+          imports.set(resolved.tag, resolved.importPath);
+        }
       }
 
       const attrs = styleAttr(node);

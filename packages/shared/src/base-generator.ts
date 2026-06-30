@@ -31,4 +31,9 @@ export abstract class BaseGenerator {
 
   /** 回傳該框架的檔案副檔名（例如 ".vue"、".tsx"） */
   abstract getFileExtension(): string;
+
+  /** 回傳該元件建議的存放目錄（例如 "components"、"pages"）。預設回傳 "components" */
+  getOutputDir(ast: UINode): string {
+    return 'components';
+  }
 }
