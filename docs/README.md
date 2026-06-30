@@ -11,13 +11,14 @@
 | `@codegen/shared` | [packages/shared](../packages/shared) | 共用型別（`UINode`、`UIStyleToken`、`BaseGenerator` 等），無對外相依 | — |
 | `@codegen/parser` | [packages/parser](../packages/parser) | 抓取並清洗 Figma 節點、Style Strategy、Component Resolver | `@codegen/shared` |
 | `@codegen/core` | [packages/core](../packages/core) | Orchestrator 進入點，串接 Parser／Style Engine／Component Resolver | `@codegen/parser` |
-| `@codegen/generators` | [packages/generators](../packages/generators) | 各框架程式碼產生器（vue3 / react / next / nuxt），繼承 `BaseGenerator` | `@codegen/shared` |
+| `@codegen/generators` | [packages/generators](../packages/generators) | 各框架程式碼產生器（vue3 / nuxt / react / next），繼承 `BaseGenerator`，共用 parser 的 Style Engine 與 Component Resolver | `@codegen/parser`、`@codegen/shared` |
 
 ## 文件
 
 - **[開發環境設定](./development-setup.md)** — Node / pnpm 版本需求、如何用 fnm + corepack 把版本釘住、版本飄移的排錯。
 - **[Figma Fetcher 模組](./figma-fetcher.md)** — `fetchFigmaNodes` 的用法、`.env` 設定、測試方式、429 限流與注意事項。
 - **[Style Strategy 轉譯策略](./style-strategy.md)** — 轉譯策略（Strategy Pattern）的設計理念與 Tailwind 轉譯策略實作。
+- **[框架程式碼產生器](./generators.md)** — vue3 / nuxt / react / next 產生器的繼承關係、各框架轉換差異重點，與可能踩的坑。
 
 ## 快速開始
 
@@ -37,5 +38,5 @@ pnpm test                # 跑所有單元測試（Node.js 內建 test runner）
 | `FIGMA_FILE_KEY` | ✅ | Figma 檔案 URL 中的 key |
 | `FIGMA_NODE_ID` | ✅ | 要抓取的節點 ID |
 | `FIGMA_PERSONAL_ACCESS_TOKEN` | ✅ | Figma 個人存取 Token |
-| `CODEGEN_FRAMEWORK` | 選填 | 目標框架，預設 `vue3`（可選 `react`） |
+| `CODEGEN_FRAMEWORK` | 選填 | 目標框架，預設 `vue3`（可選 `nuxt` / `react` / `next`） |
 | `CODEGEN_STYLE` | 選填 | 樣式模式，預設 `tailwind`（可選 `css`） |

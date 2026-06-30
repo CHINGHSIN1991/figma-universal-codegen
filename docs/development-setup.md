@@ -47,7 +47,16 @@ fnm 是在開啟 shell 時由啟動 hook 動態注入 PATH，**只對互動式 s
 → 解法：從已啟用 fnm 的終端機啟動 IDE；或把系統那份舊 Node 升級/移除，讓 fallback 也是新版。
 
 **症狀 B：`git diff` 顯示 `pnpm-lock.yaml` 有大量「格式」變動。**
-觀察第一行 `lockfileVersion`：若從 `'9.0'` 變成 `5.4`，代表是被**舊版 pnpm（7.x）改寫降級**，不是真的相依性變更。
-→ 解法：`git restore pnpm-lock.yaml` 還原，並確認 `corepack enable` 已生效（用 pnpm 10 而非殘留的舊版），再重新 `pnpm install`。
+觀察第一行 `lockfileVersion`：若從 `'9.0'` 變成 `5.4`，代表是被**舊版 pnpm（7.x）改寫降級**，不是真的相依性變更。每次用舊版 pnpm 跑 `pnpm install` 都會重演（舊版看不懂 v9 lockfile，會整份忽略並用 5.4 格式重寫）。
+→ 排查：先確認實際跑到的是哪一版 pnpm。
+```powershell
+where.exe pnpm        # 列出 PATH 中所有 pnpm，排最前面的才是實際執行的那個
+pnpm --version        # 應為 10.x；若是 7.x 就是元兇
+```
+常見根因是 **PATH 中有一份獨立安裝的舊 pnpm 蓋過 corepack 的 shim**（例如 `C:\Users\<user>\AppData\Local\pnpm\pnpm.exe`，且 `PNPM_HOME` 把它排在 PATH 最前）。這份獨立執行檔**不理會 `packageManager` 欄位**，所以光 `corepack enable` 沒用，得讓它不再被解析到。
+→ 解法：
+1. `git restore pnpm-lock.yaml` 還原降級的 lockfile。
+2. 移除（或改名）那份獨立安裝的 `pnpm.exe`，讓 `pnpm` fall through 到 corepack 的 10.x shim；確認 `pnpm --version` 回報 10.x。
+3. 重新 `pnpm install`；正常情況下 lockfile 應維持 `'9.0'`，且只在新增套件時出現對應的 `importers` 小幅變更。
 
 > 根因都是同一類：本機殘留了過時的全域 Node / pnpm。釘住 `packageManager` + 統一用 fnm 管 Node，即可避免。
