@@ -21,7 +21,12 @@ export interface AIActionPlan {
  * @param simplifiedASTString - 已精簡（移除雜訊欄位）的 UINode JSON 字串
  */
 export async function analyzeUIWithAI(simplifiedASTString: string): Promise<AIActionPlan[]> {
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error('環境變數 GEMINI_API_KEY 未設定，無法呼叫 Gemini API。');
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
 
   const response = await ai.models.generateContent({
     model: 'gemini-2.5-flash', // 速度快且支援 Structured Outputs 的智慧模型
