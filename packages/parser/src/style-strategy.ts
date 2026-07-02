@@ -28,6 +28,31 @@ const TAILWIND_FONT_WEIGHT: Record<number, string> = {
 };
 
 /**
+ * Tailwind 預設 spacing scale 的合法級距（gap-1.5、p-14 等）。
+ * Figma 間距除以 4 後若不在此集合（例如 5px → 1.25、18px → 4.5），
+ * 對應的 class 並不存在，需 fallback 為任意值語法（gap-[5px]）。
+ */
+const TAILWIND_SPACING_STEPS = new Set([
+  0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 20, 24,
+  28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 72, 80, 96,
+]);
+
+/** px 值落在 spacing scale 上輸出級距 class，否則輸出任意值語法。 */
+function spacingClass(prefix: string, px: number): string {
+  const step = px / 4;
+  return TAILWIND_SPACING_STEPS.has(step) ? `${prefix}-${step}` : `${prefix}-[${px}px]`;
+}
+
+/**
+ * Tailwind 任意值語法中不允許空格（會被當成 class 分隔符），
+ * 依官方慣例以底線代替（渲染 CSS 時 Tailwind 會將 `_` 還原為空格）。
+ * 例：`rgba(26, 43, 60, 0.5)` → `rgba(26,_43,_60,_0.5)`。
+ */
+function arbitraryValue(value: string): string {
+  return value.replace(/\s+/g, '_');
+}
+
+/**
  * 將 UIStyleToken 轉換為 Tailwind CSS utility class 字串。
  *
  * 設計說明：
@@ -74,19 +99,25 @@ export class TailwindStrategy implements StyleStrategy {
       classes.push(map[tokens.alignItems]);
     }
 
-    // Figma 數值轉 Tailwind 級距（16px → gap-4）
+    // Figma 數值轉 Tailwind 級距（16px → gap-4）；不在級距上則用任意值（5px → gap-[5px]）
     if (tokens.gap) {
-      const tailwindGap = tokens.gap / 4;
-      classes.push(`gap-${tailwindGap}`);
+      classes.push(spacingClass('gap', tokens.gap));
     }
 
     // 四邊相等時輸出 `p-N`，否則逐邊輸出（16px → p-4）
     if (tokens.padding) {
       const { top, right, bottom, left } = tokens.padding;
       if (top === right && right === bottom && bottom === left) {
-        classes.push(`p-${top / 4}`);
+        classes.push(spacingClass('p', top));
       } else {
-        classes.push(`pt-${top / 4} pr-${right / 4} pb-${bottom / 4} pl-${left / 4}`);
+        classes.push(
+          [
+            spacingClass('pt', top),
+            spacingClass('pr', right),
+            spacingClass('pb', bottom),
+            spacingClass('pl', left),
+          ].join(' '),
+        );
       }
     }
 
@@ -107,9 +138,10 @@ export class TailwindStrategy implements StyleStrategy {
 
     // --- 外觀 ---
 
-    // 使用任意值語法支援 Figma 任意色票（`bg-[#1a2b3c]`）
+    // 使用任意值語法支援 Figma 任意色票（`bg-[#1a2b3c]`）；
+    // rgba() 等含空格的色值需經 arbitraryValue 轉底線，否則 class 會被空格拆散。
     if (tokens.backgroundColor) {
-      classes.push(`bg-[${tokens.backgroundColor}]`);
+      classes.push(`bg-[${arbitraryValue(tokens.backgroundColor)}]`);
     }
 
     if (tokens.borderRadius !== undefined) {
@@ -119,7 +151,7 @@ export class TailwindStrategy implements StyleStrategy {
     // --- 文字 ---
 
     if (tokens.color) {
-      classes.push(`text-[${tokens.color}]`);
+      classes.push(`text-[${arbitraryValue(tokens.color)}]`);
     }
 
     if (tokens.fontSize !== undefined) {
