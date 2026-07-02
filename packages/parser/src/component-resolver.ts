@@ -32,6 +32,30 @@ export interface ResolvedComponent {
   importPath: string | null;
 }
 
+// ─── 框架 fallback ────────────────────────────────────────────────────────────
+
+/**
+ * 衍生框架的映射退回鏈：mapping.config.json 未定義該框架的 importPath 時，
+ * 改用其基底框架的設定（Next 的元件寫法同 React、Nuxt 同 Vue 3）。
+ */
+const FRAMEWORK_FALLBACK: Record<string, string> = {
+  next: 'react',
+  nuxt: 'vue3',
+};
+
+/** 依「目標框架 → 基底框架」順序找出第一個有定義的 framework mapping。 */
+function findFrameworkMapping(
+  match: ComponentMapping,
+  framework: string,
+): FrameworkMapping | undefined {
+  const direct = match[framework];
+  if (typeof direct === 'object') return direct;
+
+  const fallback = FRAMEWORK_FALLBACK[framework];
+  const inherited = fallback ? match[fallback] : undefined;
+  return typeof inherited === 'object' ? inherited : undefined;
+}
+
 // ─── 主函式 ───────────────────────────────────────────────────────────────────
 
 /**
@@ -59,12 +83,19 @@ export function resolveComponentTag(
   const match = config.mappings[nodeName];
 
   if (match) {
-    const frameworkMapping = match[framework] as FrameworkMapping | undefined;
-    return {
-      isCustomComponent: true,
-      tag: match.targetComponent,
-      importPath: frameworkMapping?.importPath ?? null,
-    };
+    const frameworkMapping = findFrameworkMapping(match, framework);
+    if (frameworkMapping) {
+      return {
+        isCustomComponent: true,
+        tag: match.targetComponent,
+        importPath: frameworkMapping.importPath,
+      };
+    }
+    // 命中名稱但該框架（含基底框架）皆無 importPath：
+    // 產出沒有 import 的自訂元件標籤會是壞程式碼，故示警並退回 HTML 標籤。
+    console.warn(
+      `[Resolver 警告] "${nodeName}" 命中 mapping，但框架 "${framework}" 未定義 importPath，退回 HTML 標籤。`,
+    );
   }
 
   // 若沒命中任何既有元件，則退回最基礎的 HTML 語意標籤
